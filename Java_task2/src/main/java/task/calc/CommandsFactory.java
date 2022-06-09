@@ -1,7 +1,7 @@
 package task.calc;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
 import task.calc.commands.Command;
 import task.calc.exceptions.CommandNotFoundException;
 import task.calc.exceptions.InvalidCommandException;
@@ -15,12 +15,13 @@ import java.util.PropertyResourceBundle;
 
 public class CommandsFactory
 {
-    private final static Logger logger = LogManager.getLogger();
+    private final static Logger logger = LogManager.getLogger(CommandsFactory.class.getName());
 
-    private static final String COMMANDS_PROP = "commands.properties";
-    private final Map<String, Class<?>> commandsClasses = new HashMap<>();
+    private static final String COMMANDS_PROP = "/commands.properties";
+    private final static Map<String, Class<?>> commandsClasses = new HashMap<>();
+    private static volatile CommandsFactory commandsFactory;
 
-    public CommandsFactory() throws CommandNotFoundException, InvalidCommandException, IOException
+    private CommandsFactory() throws CommandNotFoundException, InvalidCommandException, IOException
     {
         logger.trace("Constructing new CommandsFactory...");
 
@@ -89,26 +90,26 @@ public class CommandsFactory
 
     }
 
-    public Command create(String commandName) throws InvalidCommandException, CommandNotFoundException
-    {
+    public static Command create(String commandName) throws InvalidCommandException, CommandNotFoundException, IOException {
         logger.trace("Trying to create Command with name '" + commandName + "'.");
         Command instance = null;
 
-        var commandClass = commandsClasses.get(commandName.toLowerCase());
-        if (commandClass == null)
-        {
-            logger.error("Unable to find class name for command name '" + commandName + "'.");
-            throw new CommandNotFoundException("Unknown command: " + commandName);
-        }
+        synchronized (CommandsFactory.class) {
+            if(commandsFactory == null){
+                commandsFactory = new CommandsFactory();
+            }
+            var commandClass = commandsClasses.get(commandName.toLowerCase());
+            if (commandClass == null) {
+                logger.error("Unable to find class name for command name '" + commandName + "'.");
+                throw new CommandNotFoundException("Unknown command: " + commandName);
+            }
 
-        try
-        {
-            instance = (Command) commandClass.getDeclaredConstructor().newInstance();
-        }
-        catch (ReflectiveOperationException e)
-        {
-            logger.error("Unable to create instance of " + commandClass.getName() + " class");
-            throw new InvalidCommandException("Unknown command: " + commandName);
+            try {
+                instance = (Command) commandClass.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                logger.error("Unable to create instance of " + commandClass.getName() + " class");
+                throw new InvalidCommandException("Unknown command: " + commandName);
+            }
         }
 
         logger.info("Successfully created Command instance with name '" + commandName + "'.");

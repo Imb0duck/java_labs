@@ -1,7 +1,7 @@
 package task.calc;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
 import task.calc.exceptions.StackCalculatorException;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.io.OutputStream;
 
 public class StackCalculator
 {
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(StackCalculator.class.getName());
     private final CommandContext context;
     private final CommandsReader commandsReader;
 

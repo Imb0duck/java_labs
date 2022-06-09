@@ -1,7 +1,7 @@
 package task.calc;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
 import task.calc.commands.Command;
 import task.calc.exceptions.CommandNotFoundException;
 import task.calc.exceptions.InvalidCommandException;
@@ -15,17 +15,15 @@ import java.util.Arrays;
 
 public class DefaultCommandsReader implements CommandsReader
 {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(DefaultCommandsReader.class.getName());
 
     private final LineNumberReader reader;
-    private final CommandsFactory commandsFactory;
 
     public DefaultCommandsReader(InputStream inputStream) throws StackCalculatorException, IOException
     {
         logger.trace("Constructing new DefaultCommandsReader...");
 
         reader = new LineNumberReader(new InputStreamReader(inputStream));
-        commandsFactory = new CommandsFactory();
     }
 
     @Override
@@ -37,13 +35,13 @@ public class DefaultCommandsReader implements CommandsReader
 
         if (line == null || 0 == line.length()) return null;
 
-        // split values by spaces
+        //split values
         String[] split = line.split("\\s+");
 
         Command cmd;
         try
         {
-            cmd = commandsFactory.create(split[0]);
+            cmd = CommandsFactory.create(split[0]);
         }
         catch (InvalidCommandException e)
         {
@@ -54,7 +52,7 @@ public class DefaultCommandsReader implements CommandsReader
             throw new CommandNotFoundException("Error at line " + reader.getLineNumber() + ": " + e.getMessage());
         }
 
-        // remove first value (command name)
+        //remove first value
         String[] params = Arrays.copyOfRange(split, 1, split.length);
 
         return new CommandInfo(cmd, params);

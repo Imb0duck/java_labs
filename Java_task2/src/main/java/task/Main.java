@@ -1,18 +1,20 @@
 package task;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
 import task.calc.StackCalculator;
 import task.calc.exceptions.StackCalculatorException;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class Main
 {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(Main.class.getName());
 
     public static void main(String[] args)
     {
+        System.out.println(Arrays.toString(args));
         logger.trace("Starting application...");
 
             if (args.length > 2)
