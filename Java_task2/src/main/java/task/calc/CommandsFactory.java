@@ -48,7 +48,7 @@ public class CommandsFactory
         }
     }
 
-    public CommandsFactory(InputStream propsInputStream) throws InvalidCommandException, CommandNotFoundException, IOException
+    private CommandsFactory(InputStream propsInputStream) throws InvalidCommandException, CommandNotFoundException, IOException
     {
         logger.trace("Constructing new CommandsFactory...");
         logger.info("Reading properties from " + propsInputStream.getClass().getSimpleName());
